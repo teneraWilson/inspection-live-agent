@@ -12,7 +12,7 @@ from livekit.agents import (
     cli,
     metrics,
 )
-from livekit.plugins import noise_cancellation, silero
+from livekit.plugins import noise_cancellation, silero, openai
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 logger = logging.getLogger("agent")
@@ -65,7 +65,7 @@ async def entrypoint(ctx: JobContext):
         stt="assemblyai/universal-streaming:en",
         # A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
         # See all available models at https://docs.livekit.io/agents/models/llm/
-        llm="openai/gpt-4.1-mini",
+        llm=openai.LLM(model="gpt-5-mini"),
         # Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
         # See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
         tts="cartesia/sonic-2:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
@@ -119,6 +119,11 @@ async def entrypoint(ctx: JobContext):
             # For telephony applications, use `BVCTelephony` for best results
             noise_cancellation=noise_cancellation.BVC(),
         ),
+    )
+
+    # Greet the user and offer your assistance.
+    await session.generate_reply(
+        instructions="Greet the user and offer your assistance."
     )
 
     # Join the room and connect to the user
